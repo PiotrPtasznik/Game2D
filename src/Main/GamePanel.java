@@ -13,6 +13,7 @@ public class GamePanel extends JPanel implements Runnable {
     final int maxScreenRow = 12;
     final int screenWidth = tileSize*maxScreenCol; //768px width (48px x 16)
     final int screenHeight = tileSize* maxScreenRow; //576px height (48px x 12 )
+    int FPS = 60;
 
     KeyHandler keyHandler = new KeyHandler();
     Thread gameThread;
@@ -36,11 +37,31 @@ public class GamePanel extends JPanel implements Runnable {
 
     @Override
     public void run() {
+        double drawInterval = (double) 1000000000/FPS; // 1000000000nanosecs = 1 sec, so 1sec/60 = 0,01666 seconds. Frame is drawn every 0,01666(6) second
+        double delta = 0;
+        long lastTime = System.nanoTime();
+        long currentTime;
+        long timer = 0;
+        int drawCount = 0;
+
         while (gameThread != null){
-            long currentTime = System.nanoTime();
-            System.out.println("Current time" + currentTime);
-            update();
-            repaint();
+            currentTime = System.nanoTime();
+            delta += (currentTime - lastTime) / drawInterval;
+            timer += (currentTime-lastTime);
+            lastTime = currentTime;
+
+            if(delta >= 1){
+                update();
+                repaint();
+                delta--;
+                drawCount++;
+            }
+
+            if(timer >= 1000000000){
+                System.out.println("FPS:" + drawCount);
+                drawCount = 0 ;
+                timer = 0;
+            }
         }
     }
 
