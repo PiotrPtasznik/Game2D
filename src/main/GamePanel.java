@@ -2,6 +2,7 @@ package main;
 
 
 import entities.Player;
+import object.SuperObject;
 import tile.TileManager;
 
 import javax.swing.JPanel;
@@ -25,12 +26,16 @@ public class GamePanel extends JPanel implements Runnable {
 
     int FPS = 60;
 
-    public CollisionChecker collisionChecker = new CollisionChecker(this);
     TileManager tileManager = new TileManager(this);
     KeyHandler keyHandler = new KeyHandler();
     Thread gameThread;
 
+    public CollisionChecker collisionChecker = new CollisionChecker(this);
     public Player player = new Player(this, keyHandler);
+    public SuperObject obj [] = new SuperObject[10];
+
+    public AssetsSetter assetsSetter = new AssetsSetter(this);
+
 
     public GamePanel () {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -38,6 +43,10 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
+    }
+
+    public void setupGame(){
+        assetsSetter.setObject();
     }
 
     public void startGameThread(){
@@ -82,12 +91,17 @@ public class GamePanel extends JPanel implements Runnable {
     public void paintComponent(Graphics graphics){
         super.paintComponent(graphics);
 
-        Graphics2D g2 = (Graphics2D)graphics;
+        Graphics2D graphics2D = (Graphics2D)graphics;
 
-        tileManager.draw(g2);
-        player.draw(g2);
+        tileManager.draw(graphics2D);
+        for (int i = 0; i <obj.length; i++){
+            if(obj[i] != null){
+                obj[i].draw(graphics2D, this);
+            }
+        }
+        player.draw(graphics2D);
 
-        g2.dispose();
+        graphics2D.dispose();
 
     }
 }
