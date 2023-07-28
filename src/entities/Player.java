@@ -13,9 +13,9 @@ import java.util.Objects;
 public class Player extends Entity {
     GamePanel gamePanel;
     KeyHandler keyHandler;
-
     public final int screenX;
     public final int screenY;
+    int hasKey = 0;
 
     public Player(GamePanel gamePanel, KeyHandler keyHandler){
 
@@ -26,6 +26,9 @@ public class Player extends Entity {
         screenY = gamePanel.screenHeight/2 - (gamePanel.tileSize/2);
 
         solidArea = new Rectangle(8,16,32,32);
+
+        solidAreaDefaultX = solidArea.x;
+        solidAreaDefaultY = solidArea.y;
 
         setDefaultValues();
         getPlayerImage();
@@ -71,9 +74,13 @@ public class Player extends Entity {
 
             }
 
-            //check collision
+            //check tile collision
             collisionOn = false;
             gamePanel.collisionChecker.checkTile(this);
+
+            //check object collision
+            int objIndex = gamePanel.collisionChecker.checkObject(this, true);
+            interactionWithObject(objIndex);
 
             //Collision false - player can move
             if(!collisionOn){
@@ -101,7 +108,29 @@ public class Player extends Entity {
 
     }
 
-    public void draw(Graphics2D g2){
+    public void interactionWithObject(int i){
+        if(i != 999){
+            String objectName = gamePanel.obj[i].name;
+
+            switch (objectName){
+                case "Key":
+                    hasKey++;
+                    gamePanel.obj[i] = null;
+                    System.out.println("Key : " + hasKey);
+                    break;
+                case "Door":
+                    if (hasKey>0){
+                        gamePanel.obj[i] = null;
+                        hasKey--;
+                    }
+                    System.out.println("Key : " + hasKey);
+                    break;
+            }
+        }
+
+    }
+
+    public void draw(Graphics2D g2D){
 
         BufferedImage image = null;
 
@@ -136,6 +165,6 @@ public class Player extends Entity {
             }
         }
 
-        g2.drawImage(image, screenX, screenY, gamePanel.tileSize, gamePanel.tileSize, null );
+        g2D.drawImage(image, screenX, screenY, gamePanel.tileSize, gamePanel.tileSize, null );
     }
 }
