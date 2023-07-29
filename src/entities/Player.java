@@ -25,7 +25,7 @@ public class Player extends Entity {
         screenX = gamePanel.screenWidth/2 - (gamePanel.tileSize/2);
         screenY = gamePanel.screenHeight/2 - (gamePanel.tileSize/2);
 
-        solidArea = new Rectangle(8,16,32,32);
+        solidArea = new Rectangle(8,16,30,30);
 
         solidAreaDefaultX = solidArea.x;
         solidAreaDefaultY = solidArea.y;
@@ -114,16 +114,23 @@ public class Player extends Entity {
 
             switch (objectName){
                 case "Key":
+                    gamePanel.playSE(1);
                     hasKey++;
                     gamePanel.obj[i] = null;
                     System.out.println("Key : " + hasKey);
                     break;
                 case "Door":
                     if (hasKey>0){
+                        gamePanel.playSE(3);
                         gamePanel.obj[i] = null;
                         hasKey--;
                     }
                     System.out.println("Key : " + hasKey);
+                    break;
+                case "Boots":
+                    gamePanel.playSE(2);
+                    speed += 2;
+                    gamePanel.obj[i] = null;
                     break;
             }
         }
