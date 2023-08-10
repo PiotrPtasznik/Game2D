@@ -26,14 +26,17 @@ public class GamePanel extends JPanel implements Runnable {
 
     //SYSTEM
     TileManager tileManager = new TileManager(this);
-    KeyHandler keyHandler = new KeyHandler();
+    MovementHandler movementHandler = new MovementHandler();
     Sound sound = new Sound();
+
+    Sound music = new Sound();
     public CollisionChecker collisionChecker = new CollisionChecker(this);
     public AssetsSetter assetsSetter = new AssetsSetter(this);
+    public UI ui = new UI(this);
     Thread gameThread;
 
     //ENTITY & OBJECTS
-    public Player player = new Player(this, keyHandler);
+    public Player player = new Player(this, movementHandler);
     public SuperObject obj [] = new SuperObject[10];
 
 
@@ -41,7 +44,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.black);
         this.setDoubleBuffered(true);
-        this.addKeyListener(keyHandler);
+        this.addKeyListener(movementHandler);
         this.setFocusable(true);
     }
 
@@ -86,6 +89,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void update(){
+
         player.update();
     }
 
@@ -95,22 +99,26 @@ public class GamePanel extends JPanel implements Runnable {
         Graphics2D graphics2D = (Graphics2D)graphics;
 
         tileManager.draw(graphics2D);
+
         for (int i = 0; i <obj.length; i++){
             if(obj[i] != null){
                 obj[i].draw(graphics2D, this);
             }
         }
+
         player.draw(graphics2D);
+        ui.draw(graphics2D);
 
         graphics2D.dispose();
     }
     public void playMusic(int i){
-        sound.setFile(i);
-        sound.play();
-        sound.loop();
+        music.setFile(i);
+        music.play();
+        music.loop();
     }
 
     public void stopMusic(){
+
         sound.stop();
     }
 

@@ -1,7 +1,8 @@
 package entities;
 
 import main.GamePanel;
-import main.KeyHandler;
+import main.MovementHandler;
+import main.UtilityTool;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -12,15 +13,15 @@ import java.util.Objects;
 
 public class Player extends Entity {
     GamePanel gamePanel;
-    KeyHandler keyHandler;
+    MovementHandler movementHandler;
     public final int screenX;
     public final int screenY;
-    int hasKey = 0;
+    public int hasKey = 0;
 
-    public Player(GamePanel gamePanel, KeyHandler keyHandler){
+    public Player(GamePanel gamePanel, MovementHandler movementHandler){
 
         this.gamePanel = gamePanel;
-        this.keyHandler = keyHandler;
+        this.movementHandler = movementHandler;
 
         screenX = gamePanel.screenWidth/2 - (gamePanel.tileSize/2);
         screenY = gamePanel.screenHeight/2 - (gamePanel.tileSize/2);
@@ -42,34 +43,43 @@ public class Player extends Entity {
     }
 
     public void getPlayerImage(){
-        try{
-            up1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_up_1.png")));
-            up2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_up_2.png")));
-            down1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_down_1.png")));
-            down2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_down_2.png")));
-            left1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_left_1.png")));
-            left2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_left_2.png")));
-            right1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_right_1.png")));
-            right2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_right_2.png")));
-        }
-        catch (IOException e){
+
+        up1 = setup("boy_up_1");
+        up2 = setup("boy_up_2");
+        down1 = setup("boy_down_1");
+        down2 = setup("boy_down_2");
+        left1 = setup("boy_left_1");
+        left2 = setup("boy_left_2");
+        right1 = setup("boy_right_1");
+        right2 = setup("boy_right_2");
+
+    }
+
+    public BufferedImage setup(String imageName){
+        UtilityTool utilityTool = new UtilityTool();
+        BufferedImage scaledImage = null;
+        try {
+            scaledImage = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/" + imageName + ".png")));
+            scaledImage = utilityTool.scaledImage(scaledImage, gamePanel.tileSize, gamePanel.tileSize);
+        }catch (IOException e){
             e.printStackTrace();
         }
+        return scaledImage;
     }
 
     public void update(){
-        if(keyHandler.upPressed || keyHandler.downPressed || keyHandler.leftPressed || keyHandler.rightPressed){
+        if(movementHandler.upPressed || movementHandler.downPressed || movementHandler.leftPressed || movementHandler.rightPressed){
 
-            if (keyHandler.upPressed){
+            if (movementHandler.upPressed){
                 direction = "up";
             }
-            if (keyHandler.downPressed){
+            if (movementHandler.downPressed){
                 direction = "down";
             }
-            if (keyHandler.leftPressed){
+            if (movementHandler.leftPressed){
                 direction = "left";
             }
-            if (keyHandler.rightPressed){
+            if (movementHandler.rightPressed){
                 direction = "right";
 
             }
@@ -117,21 +127,29 @@ public class Player extends Entity {
                     gamePanel.playSE(1);
                     hasKey++;
                     gamePanel.obj[i] = null;
-                    System.out.println("Key : " + hasKey);
+                    gamePanel.ui.showMessage("You got a key");
                     break;
                 case "Door":
                     if (hasKey>0){
                         gamePanel.playSE(3);
                         gamePanel.obj[i] = null;
                         hasKey--;
+                        gamePanel.ui.showMessage("You opened door");
                     }
-                    System.out.println("Key : " + hasKey);
+                    else {
+                        gamePanel.ui.showMessage("You need key");
+                    }
                     break;
                 case "Boots":
                     gamePanel.playSE(2);
-                    speed += 2;
+                    speed += 1;
                     gamePanel.obj[i] = null;
                     break;
+                case "Chest":
+                    gamePanel.ui.gameFinished = true;
+                    gamePanel.stopMusic();
+                    gamePanel.playSE(4);
+
             }
         }
 
@@ -172,6 +190,6 @@ public class Player extends Entity {
             }
         }
 
-        g2D.drawImage(image, screenX, screenY, gamePanel.tileSize, gamePanel.tileSize, null );
+        g2D.drawImage(image, screenX, screenY, null );
     }
 }

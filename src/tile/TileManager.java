@@ -1,6 +1,7 @@
 package tile;
 
 import main.GamePanel;
+import main.UtilityTool;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -27,31 +28,27 @@ public class TileManager {
     }
 
     public void getTileImage(){
-        try{
-            tile[0] = new Tile();
-            tile[0].image = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/tiles/grass.png")));
+            setup(0, "grass", false);
+            setup(1, "wall", true);
+            setup(2, "water", true);
+            setup(3, "earth", false);
+            setup(4, "tree", true);
+            setup(5, "sand", false);
+    }
 
-            tile[1] = new Tile();
-            tile[1].image = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/tiles/wall.png")));
-            tile[1].collision = true;
+    public void setup(int index, String imagePath, boolean collision){
 
-            tile[2] = new Tile();
-            tile[2].image = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/tiles/water.png")));
-            tile[2].collision = true;
+        UtilityTool utilityTool = new UtilityTool();
 
-            tile[3] = new Tile();
-            tile[3].image = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/tiles/earth.png")));
-
-            tile[4] = new Tile();
-            tile[4].image = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/tiles/tree.png")));
-            tile[4].collision = true;
-
-            tile[5] = new Tile();
-            tile[5].image = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/tiles/sand.png")));
-        }
-        catch (IOException e){
+        try {
+            tile[index] = new Tile();
+            tile[index].image = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/tiles/" + imagePath + ".png")));
+            tile[index].image = utilityTool.scaledImage(tile[index].image, gamePanel.tileSize, gamePanel.tileSize);
+            tile[index].collision = collision;
+        }catch (IOException e){
             e.printStackTrace();
         }
+
     }
     public void loadMap(String filePath){
         try {
@@ -78,8 +75,9 @@ public class TileManager {
                 }
             }
             br.close();
-        }catch (Exception e){
-
+        }
+        catch (Exception e){
+            e.printStackTrace();
         }
     }
     public void draw(Graphics2D g2){
@@ -102,7 +100,7 @@ public class TileManager {
                 worldY + gamePanel.tileSize> gamePanel.player.worldY - gamePanel.player.screenY &&
                 worldY - gamePanel.tileSize < gamePanel.player.worldY + gamePanel.player.screenY) {
 
-                g2.drawImage(tile[tileNum].image, screenX, screenY, gamePanel.tileSize, gamePanel.tileSize, null);// rendering camera square area only
+                g2.drawImage(tile[tileNum].image, screenX, screenY, null);// rendering camera square area only
             }
 
             worldCol++;
